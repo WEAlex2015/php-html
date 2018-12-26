@@ -1,79 +1,86 @@
-function randomData() {
-	now = new Date(+now + oneDay);
-	value = value + Math.random() * 21 - 10;
-	return {
-		name: now.toString(),
-		value: [
-			[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
-			Math.round(value)
-		]
-	}
-}
-
-var data = [];
-var now = +new Date(1997, 9, 3);
-var oneDay = 24 * 3600 * 1000;
-var value = Math.random() * 1000;
-for (var i = 0; i < 1000; i++) {
-	data.push(randomData());
-}
-
 option = {
-	title: {
-		text: ''
-	},
-	tooltip: {
-		trigger: 'axis',
-		formatter: function (params) {
-			params = params[0];
-			var date = new Date(params.name);
-			return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
-		},
-		axisPointer: {
-			animation: false
-		}
-	},
-	xAxis: {
-		type: 'time',
-		splitLine: {
-			show: false
-		}
-	},
-	yAxis: {
-		type: 'value',
-		boundaryGap: [0, '100%'],
-		splitLine: {
-			show: false
-		}
-	},
-	series: [{
-		name: '模拟数据',
-		type: 'line',
-		showSymbol: false,
-		hoverAnimation: false,
-		data: data,
-		markPoint: {
-			data:
-				[
-					{ type: 'max', name: '最大值' },
-					{ type: 'min', name: '最小值' }
-				]
-		}
-	}]
+    title: {
+        text: '未来一周气温变化',
+        subtext: '纯属虚构'
+    },
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+        data:['最高气温','最低气温']
+    },
+    toolbox: {
+        show: true,
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'none'
+            },
+            dataView: {readOnly: false},
+            magicType: {type: ['line', 'bar']},
+            restore: {},
+            saveAsImage: {}
+        }
+    },
+    xAxis:  {
+        type: 'category',
+        boundaryGap: false,
+        data: ['周一','周二','周三','周四','周五','周六','周日']
+    },
+    yAxis: {
+        type: 'value',
+        axisLabel: {
+            formatter: '{value} °C'
+        }
+    },
+    series: [
+        {
+            name:'最高气温',
+            type:'line',
+            data:[11, 11, 15, 13, 12, 13, 10],
+            markPoint: {
+                data: [
+                    {type: 'max', name: '最大值'},
+                    {type: 'min', name: '最小值'}
+                ]
+            },
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'}
+                ]
+            }
+        },
+        {
+            name:'最低气温',
+            type:'line',
+            data:[1, -2, 2, 5, 3, 2, 0],
+            markPoint: {
+                data: [
+                    {name: '周最低', value: -2, xAxis: 1, yAxis: -1.5}
+                ]
+            },
+            markLine: {
+                data: [
+                    {type: 'average', name: '平均值'},
+                    [{
+                        symbol: 'none',
+                        x: '90%',
+                        yAxis: 'max'
+                    }, {
+                        symbol: 'circle',
+                        label: {
+                            normal: {
+                                position: 'start',
+                                formatter: '最大值'
+                            }
+                        },
+                        type: 'max',
+                        name: '最高点'
+                    }]
+                ]
+            }
+        }
+    ]
 };
 
-setInterval(function () {
-
-	for (var i = 0; i < 5; i++) {
-		data.shift();
-		data.push(randomData());
-	}
-
-	myChart.setOption({
-		series: [{
-			data: data
-		}]
-	});
-}, 1000);
 var myChart = echarts.init(document.getElementById('myAreaChart'));
 myChart.setOption(option);

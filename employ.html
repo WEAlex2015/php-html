@@ -149,29 +149,20 @@
 						Data Table Example</div>
 					<div class="card-body">
 						<div class="table-responsive">
-							<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+							<table class="table table-bordered" id="employTable" width="100%" cellspacing="0">
 								<thead>
 									<tr>
-										<th>员工编号</th>
+										<th>编号</th>
 										<th>姓名</th>
 										<th>电话</th>
 										<th>年龄</th>
 										<th>所在部门</th>
+										<th>部门编号</th>
+										<th>操作</th>
 									</tr>
 								</thead>
-								<tfoot>
-									<tr>
-										<th>员工编号</th>
-										<th>姓名</th>
-										<th>电话</th>
-										<th>年龄</th>
-										<th>所在部门</th>
-									</tr>
-								</tfoot>
-								<tbody id="employtable">
-									<tr>
+								<tbody>
 
-									</tr>
 								</tbody>
 							</table>
 						</div>
@@ -216,7 +207,11 @@
 						<span aria-hidden="true">×</span>
 					</button>
 				</div>
-				<div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+				<div class="modal-body">
+
+
+
+				</div>
 				<div class="modal-footer">
 					<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
 					<a class="btn btn-primary" href="login.html">Logout</a>
@@ -224,6 +219,75 @@
 			</div>
 		</div>
 	</div>
+	<!-- 修改莫太狂 -->
+	<div class="modal fade" id="employ-modify-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+	 aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">修改信息</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="card-body">
+						<div class="form-group">
+							<div class="form-label-group">
+								<input type="hidden" id="inputUserId">
+								姓名: <input type="text" id="inputUsernName" class="form-control" placeholder="姓名" required="required" autofocus="autofocus">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								电话: <input type="number" id="inputPhone" class="form-control" placeholder="电话" required="required">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								年龄: <input type="number" id="inputAge" class="form-control" placeholder="年龄" required="required">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								所在部门: <select class="form-control" id="inputDepartmentId" style="height: 62px">
+									<option value="1">设备部</option>
+									<option value="2">运营部</option>
+									<option value="3">地铁部</option>
+								</select>
+							</div>
+						</div>
+						<button onclick="employSubmit()" class="btn btn-primary btn-block">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 删除莫太狂 -->
+	<!-- 模态框   信息删除确认 -->
+	<div class="modal fade" id="delcfm-modal">
+		<div class="modal-dialog">
+			<div class="modal-content message_align">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+					<h4 class="modal-title">提示</h4>
+				</div>
+				<div class="modal-body">
+					<!-- 隐藏需要删除的id -->
+					<input type="hidden" id="deleteHaulId" />
+					<p>您确认要删除该条信息吗？</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+					<button type="button" class="btn btn-primary" id="deleteHaulBtn" onclick="delData()">确认</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+	</div>
+	<!-- /.modal-dialog -->
 
 	<!-- Bootstrap core JavaScript-->
 	<script src="vendor/jquery/jquery.min.js"></script>
@@ -240,30 +304,120 @@
 	<script src="js/sb-admin.min.js"></script>
 
 	<!-- Demo scripts for this page-->
-	<script src="js/demo/datatables-demo.js"></script>
+	<!-- <script src="js/demo/datatables-demo.js"></script> -->
 	<script>
-		// $('#dataTable_previous a').html('上一页');
-		// <th>员工编号</th>
-		// <th>姓名</th>
-		// <th>电话</th>
-		// <th>年龄</th>
-		// <th>所在部门</th>
-		$.ajax({
-			url: "http://localhost:10000/employ.php?action=list", success: function (data) {
-				console.info(JSON.parse(data));
-				var json = JSON.parse(data);
-				for (let index = 0; index < json.length; index++) {
-					const item = json[index];
-					var id = '<td>' + item.userid + '</td>';
-					var username = '<td>' + item.username + '</td>';
-					var age = '<td>' + item.age + '</td>';
-					var dname = '<td>' + item.dname + '</td>';
-					var phone = '<td>' + item.phone + '</td>';
-					var tds = id + username + phone + age + dname;
-					$('#employtable').append('<tr>' + tds + '</tr>');
+
+		init();
+		var delUserId = '';
+
+		function delEmploy(userid) {
+			delUserId = userid;
+			$('#delcfm-modal').modal('show');
+		}
+		function delData() {
+			$.ajax({
+				url: "http://localhost:10000/employ.php?action=delete&userid=" + delUserId, success: function (data) {
+					if (data == 1) {
+						init();
+					}
+					$('#delcfm-modal').modal('hide');
+				}
+			});
+		}
+		function updateEmploy(userid) {
+			var table = $('#employTable').dataTable().fnGetNodes();
+			for (let index = 0; index < table.length; index++) {
+				const element = table[index];
+				var rowid = $($(element)[0]).find('td').eq(0).text();
+				if (userid == rowid) {
+					var user = {
+						userid: '',
+						username: '',
+						phone: '',
+						age: '',
+						dname: '',
+						userid: '',
+						departmentid: ''
+					}
+					user.userid = $($($(element)[0]).find('td')[0]).html();
+					user.username = $($($(element)[0]).find('td')[1]).html();
+					user.phone = $($($(element)[0]).find('td')[2]).html();
+					user.age = $($($(element)[0]).find('td')[3]).html();
+					user.dname = $($($(element)[0]).find('td')[4]).html();
+					user.departmentid = $($($(element)[0]).find('td')[5]).html();
+					$('#inputUserId').val(user.userid);
+					$('#inputUsernName').val(user.username);
+					$('#inputPhone').val(user.phone);
+					$('#inputAge').val(user.age);
+					$('#inputDepartmentId').val(user.departmentid);
+					$('#employ-modify-modal').modal('show');
 				}
 			}
-		});
+		}
+
+		function employSubmit() {
+			var user = {
+				userid: $('#inputUserId').val(),
+				username: $('#inputUsernName').val(),
+				phone: $('#inputPhone').val(),
+				age: $('#inputAge').val(),
+				departmentid: $('#inputDepartmentId').val()
+			}
+			$.ajax({
+				url: "http://localhost:10000/employ.php?action=update&user=" + user, success: function (data) {
+					$('#employ-modify-modal').modal('hide');
+					init();
+				}
+			});
+			console.info(user);
+		}
+
+		function init() {
+			$('#employTable').dataTable().fnDestroy();
+			var language = {
+				"processing": "<img src='loading-spinner-grey.gif'/><span>&nbsp;&nbsp;" + "处理中..." + "</span>",
+				"lengthMenu": "每页 _MENU_ 条结果",
+				"zeroRecords": "没有匹配结果",
+				"info": "<span class='seperator'>  </span>" + "总共找到 _TOTAL_ 条结果",
+				"infoFiltered": " (从所有 _MAX_ 条记录中得到)",
+				"infoEmpty": "共 0 项",
+				"emptyTable": "表中数据为空",
+				"search": "搜索:",
+				"paginate": {
+					"previous": "上一页",
+					"next": "下一页",
+					"first": "第一页  ",
+					"last": "  尾页"
+				}
+			};
+			var column = [
+				{ "data": "userid", name: "编号", "orderable": true },
+				{ "data": "username", name: "姓名", "orderable": false },
+				{ "data": "phone", name: "电话", "orderable": false },
+				{ "data": "age", name: "年龄", "orderable": true },
+				{ "data": "dname", name: "所在部门", "orderable": false },
+				{ "data": "department_id", name: "部门编号", "orderable": false },
+				{ "data": "userid", name: "操作", "orderable": false },
+			];
+
+			$.ajax({
+				url: "http://localhost:10000/employ.php?action=list", success: function (data) {
+					var json = JSON.parse(data);
+					$('#employTable').dataTable({
+						"language": language,
+						"columns": column,
+						"data": json,
+						"columnDefs": [{
+							"targets": -1,
+							"data": "userid",
+							"render": function (data, type, full, meta) {
+								return '<button class="btn btn-outline-danger btn-sm" onclick="delEmploy(' + data + ')">删除</button><button class="btn btn-outline-success btn-sm" onclick="updateEmploy(' + data + ')">修改</button>';
+							}
+						}],
+					});
+				}
+			});
+		};
 
 	</script>
 </body>

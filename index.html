@@ -114,16 +114,14 @@
 					<span>设备管理</span></a>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link" href="tables.html">
+				<a class="nav-link" href="employ.html">
 					<i class="fas fa-fw fa-table"></i>
 					<span>员工管理</span></a>
 			</li>
 		</ul>
 
 		<div id="content-wrapper">
-
 			<div class="container-fluid">
-
 				<!-- Breadcrumbs-->
 				<ol class="breadcrumb">
 					<li class="breadcrumb-item">
@@ -131,7 +129,6 @@
 					</li>
 					<li class="breadcrumb-item active">看板</li>
 				</ol>
-
 				<!-- Icon Cards-->
 				<div class="row">
 					<div class="col-xl-3 col-sm-6 mb-3">
@@ -281,6 +278,24 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="modify-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="exampleModalLabel">详情</h5>
+						<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					<div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+					<div class="modal-footer">
+						<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+						<a class="btn btn-primary" href="login.html">Logout</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
 	<!-- Bootstrap core JavaScript-->
 	<script src="vendor/jquery/jquery.min.js"></script>
 	<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -350,44 +365,15 @@
 			]
 		]
 
-		$(document).ready(function () {
-			var editor = new $.fn.dataTable.Editor({
-				// ajax: "../php/join.php",
-				table: "#dataTable",
-				fields: [{
-					label: "First name:",
-					name: "users.first_name"
-				}, {
-					label: "Last name:",
-					name: "users.last_name"
-				}, {
-					label: "Phone #:",
-					name: "users.phone"
-				}, {
-					label: "Site:",
-					name: "users.site",
-					type: "select"
-				}
-				]
-			});
 
-			// Activate an inline edit on click of a table cell
-			$('#dataTable').on('click', 'tbody td', function (e) {
-				editor.inline(this);
-			});
 
-			$('#dataTable').DataTable({
-				ajax: {
-					url: "test.json",
-					type: 'get'
-				},
-				columns: [
-					{ data: "users.first_name" },
-					{ data: "users.last_name" },
-					{ data: "users.phone" },
-					{ data: "sites.name", editField: "users.site" }
-				]
-			});
+		// Activate an inline edit on click of a table cell
+		$('#dataTable').on('click', 'tbody td', function (e) {
+			$('#modify-modal').modal('show');
+		});
+
+		$('#dataTable').DataTable({
+			data: data
 		});
 
 		// var table = $('#dataTable').DataTable({
