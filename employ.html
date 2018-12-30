@@ -147,6 +147,7 @@
 					<div class="card-header">
 						<i class="fas fa-table"></i>
 						Data Table Example</div>
+						<button class="btn btn-outline-success btn-sm" onclick="add()">新增</button>
 					<div class="card-body">
 						<div class="table-responsive">
 							<table class="table table-bordered" id="employTable" width="100%" cellspacing="0">
@@ -219,13 +220,13 @@
 			</div>
 		</div>
 	</div>
-	<!-- 修改莫太狂 -->
+	<!-- 修改motaikuang -->
 	<div class="modal fade" id="employ-modify-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
 	 aria-hidden="true">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">修改信息</h5>
+					<h5 class="modal-title" id="exampleModalLabel">UPDATE</h5>
 					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">×</span>
 					</button>
@@ -258,6 +259,54 @@
 							</div>
 						</div>
 						<button onclick="employSubmit()" class="btn btn-primary btn-block">保存</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 新增motaikuang -->
+	<div class="modal fade" id="employ-add-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+	 aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">ADD</h5>
+					<button class="close" type="button" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="card-body">
+						<div class="form-group">
+								<div class="form-label-group">
+									ID: <input type="number" id="inputAddUserId" class="form-control" placeholder="姓名" required="required" autofocus="autofocus">
+								</div>
+							</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								姓名: <input type="text" id="inputAddUsernName" class="form-control" placeholder="姓名" required="required" autofocus="autofocus">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								电话: <input type="number" id="inputAddPhone" class="form-control" placeholder="电话" required="required">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								年龄: <input type="number" id="inputAddAge" class="form-control" placeholder="年龄" required="required">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="form-label-group">
+								所在部门: <select class="form-control" id="inputAddDepartmentId" style="height: 62px">
+									<option value="1">设备部</option>
+									<option value="2">运营部</option>
+									<option value="3">地铁部</option>
+								</select>
+							</div>
+						</div>
+						<button onclick="employAddSubmit()" class="btn btn-primary btn-block">保存</button>
 					</div>
 				</div>
 			</div>
@@ -324,6 +373,10 @@
 				}
 			});
 		}
+		// 弹出窗口 ， 让用户编辑数据，准备新增；
+		function add(){
+			$('#employ-add-modal').modal('show');
+		}
 		function updateEmploy(userid) {
 			var table = $('#employTable').dataTable().fnGetNodes();
 			for (let index = 0; index < table.length; index++) {
@@ -354,6 +407,30 @@
 				}
 			}
 		}
+		// 将数据传输给php后台；
+		// 1. 页面定义组件， 比如按钮，下拉框，弹窗等，
+		// 2. 页面将数据组装json 传输给后台php；
+		// 3. php将数据转成php能识别的数组，拼sql，insert into id 自增
+		function employAddSubmit() {
+			var user = {
+				userid: $('#inputAddUserId').val(),
+				username: $('#inputAddUsernName').val(),
+				phone: $('#inputAddPhone').val(),
+				age: $('#inputAddAge').val(),
+				departmentid: $('#inputAddDepartmentId').val()
+			}
+			$.ajax({
+				url: "http://localhost:10000/employ.php?action=add&user=" + JSON.stringify(user), success: function (data) {
+					$('#employ-add-modal').modal('hide');
+					$('#inputAddUserId').val('');
+					$('#inputAddUsernName').val('');
+					$('#inputAddPhone').val('');
+					$('#inputAddAge').val('');
+					$('#inputAddDepartmentId').val('');
+					init();
+				}
+			});
+		}
 
 		function employSubmit() {
 			var user = {
@@ -364,14 +441,14 @@
 				departmentid: $('#inputDepartmentId').val()
 			}
 			$.ajax({
-				url: "http://localhost:10000/employ.php?action=update&user=" + user, success: function (data) {
+				url: "http://localhost:10000/employ.php?action=update&user=" + JSON.stringify(user), success: function (data) {
 					$('#employ-modify-modal').modal('hide');
 					init();
 				}
 			});
 			console.info(user);
 		}
-
+//js 天然支持轻量数据结构json
 		function init() {
 			$('#employTable').dataTable().fnDestroy();
 			var language = {
@@ -390,6 +467,7 @@
 					"last": "  尾页"
 				}
 			};
+			// column 列 row 行
 			var column = [
 				{ "data": "userid", name: "编号", "orderable": true },
 				{ "data": "username", name: "姓名", "orderable": false },
@@ -407,13 +485,15 @@
 						"language": language,
 						"columns": column,
 						"data": json,
-						"columnDefs": [{
-							"targets": -1,
-							"data": "userid",
-							"render": function (data, type, full, meta) {
-								return '<button class="btn btn-outline-danger btn-sm" onclick="delEmploy(' + data + ')">删除</button><button class="btn btn-outline-success btn-sm" onclick="updateEmploy(' + data + ')">修改</button>';
+						"columnDefs": [
+							{
+								"targets": 6,
+								"data": "userid",
+								"render": function (data, type, full, meta) {
+									return '<button class="btn btn-outline-danger btn-sm" onclick="delEmploy(' + data + ')">删除</button><button class="btn btn-outline-success btn-sm" onclick="updateEmploy(' + data + ')">修改</button>';
+								}
 							}
-						}],
+						],
 					});
 				}
 			});
